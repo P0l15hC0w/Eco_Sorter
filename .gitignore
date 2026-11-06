@@ -1,6 +1,8 @@
 *
 !src
 !src/*
+!src/models/*
 !.gitignore
 !README.md
+!ZALEZNOSCI.md
 !Regulamin.pdf

@@ -1,0 +1,3 @@
+0 dlon lub reka
+1 neutral
+2 item
