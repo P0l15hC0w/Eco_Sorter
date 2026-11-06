@@ -6,5 +6,9 @@
 - plytka sterujaca dlonia odbiera pakiety i zapisuje w kolejce wykonywania
 - pakiet sklada sie z: ({pozycja xy odpadu}, {indeks klasy odpadu}, {stop w przypadku reki(boolean)})
 
-### plany na przyszlosc:
-- 
+### klasy modelu odpadow:
+0. neutralna (zmieszane)
+1. plastiki i metale
+2. papier
+3. szklo
+4. odpady bio
