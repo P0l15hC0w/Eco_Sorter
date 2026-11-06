@@ -28,9 +28,9 @@ try:
                     dtype=np.float32) / 127.5) - 1,
                 axis=0)
 
-        prediction = hand_model._model.predict(image, verbose=0)
+        prediction_hand = hand_model._model.predict(image, verbose=0)
 
-        print([[labels[i], np.round(pred, 3)] for i, pred in enumerate(prediction[0])])
+        print([[labels[i], np.round(pred, 3)] for i, pred in enumerate(prediction_hand[0])])
 
         cv2.imshow("Kamera", frame)
         
