@@ -5,3 +5,6 @@
 - przekazywanie danych do reki robotycznej w formie pakietu
 - plytka sterujaca dlonia odbiera pakiety i zapisuje w kolejce wykonywania
 - pakiet sklada sie z: ({pozycja xy odpadu}, {indeks klasy odpadu}, {stop w przypadku reki(boolean)})
+
+### plany na przyszlosc:
+- 
