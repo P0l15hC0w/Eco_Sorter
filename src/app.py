@@ -28,6 +28,7 @@ def construct_packet(xy: tuple, indeks: int, stop: bool):
     return f"{xy[0]},{xy[1]},{indeks},{stop};"
 
 try: 
+    """
     tries = 1
     try: com = serial.Serial(COM_PORT, 115200, timeout=1)
     except: com = None
@@ -40,16 +41,23 @@ try:
         except:
             tries += 1
             if tries > 10: raise Exception("Port serial niedostepny")
-    
+    """
+
     running = True
-    camera = cv2.VideoCapture(0)
-        
-    ret, _ = camera.read()
-    if not ret:
-        for index in range(1, 5):
-            camera = cv2.VideoCapture(index)
-            ret, _ = camera.read()
-            if ret: camera.release(); raise Exception("Nie znaleziono kamery")
+    try:
+        camera = cv2.VideoCapture(0)
+        ret, _ = camera.read()
+    finally:
+        if not ret:
+            camera.release()
+            for index in range(2):
+                sleep(0.25)
+                try:
+                    camera = cv2.VideoCapture(index)
+                    ret, _ = camera.read()
+                    if ret: break
+                except: camera.release(); continue
+            if not ret: camera.release(); raise Exception("Nie znaleziono kamery")
 
     BASE_DIR = Path(__file__).resolve().parent
 
