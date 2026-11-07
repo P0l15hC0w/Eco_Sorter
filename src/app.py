@@ -3,7 +3,7 @@ import numpy as np
 from teachable_machine import TeachableMachine
 from pathlib import Path
 from time import sleep
-import serial
+# import serial
 
 COM_PORT = "COM3"
 
@@ -12,7 +12,7 @@ def read_cam(camera: cv2.VideoCapture):
     
     if not ret:
         print("Otwarcie kamery nieudane.")
-        raise
+        raise RuntimeError("Nie udalo sie odczytac obrazu z kamery.")
     
     image = np.expand_dims((
             np.asarray(
@@ -78,31 +78,33 @@ try:
         with open(HAND_LABEL_PATH, "r") as f: hand_labels = [label.strip("\n") for label in f.readlines()]
     except: raise Exception("Otwarcie modelu dloni niemozliwe")
 
-    try:
+    """try:
         waste_model = TeachableMachine(model_path=WASTE_MODEL_PATH, labels_file_path=WASTE_LABEL_PATH)
         with open(WASTE_LABEL_PATH, "r") as f: waste_labels = [label.strip("\n") for label in f.readlines()]
-    except: raise Exception("Otwarcie modelu odpadow niemozliwe")
+    except: raise Exception("Otwarcie modelu odpadow niemozliwe")"""
 
     try:
         location_x_model = TeachableMachine(model_path=LOCATION_X_MODEL_PATH, labels_file_path=LOCATION_X_LABEL_PATH)
         with open(LOCATION_X_LABEL_PATH, "r") as f: location_x_labels = [label.strip("\n") for label in f.readlines()]
     except: raise Exception("Otwarcie modelu lokalizacji osi x odpadu niemozliwe")
 
-    try:
+    """try:
         location_y_model = TeachableMachine(model_path=LOCATION_Y_MODEL_PATH, labels_file_path=LOCATION_Y_LABEL_PATH)
         with open(LOCATION_Y_LABEL_PATH, "r") as f: location_y_labels = [label.strip("\n") for label in f.readlines()]
-    except: raise Exception("Otwarcie modelu lokalizacji osi y odpadu niemozliwe")
+    except: raise Exception("Otwarcie modelu lokalizacji osi y odpadu niemozliwe")"""
 
     try:
         while running:
             verdict = 0
+            x = None
             for i in range(5):
                 image, frame = read_cam(camera)
                     
                 prediction_hand = hand_model._model.predict(image, verbose=0)
 
-                verdict += float(prediction_hand[0])
-                print([[hand_labels[i], float(pred, 3)] for i, pred in enumerate(prediction_hand[0])])
+                verdict += float(prediction_hand[0][0])
+
+                # print([[hand_labels[i], round(float(pred), 3)] for i, pred in enumerate(prediction_hand[0])])
 
                 cv2.imshow("Kamera", frame)
                     
@@ -110,22 +112,27 @@ try:
                     running = False
                     break
 
-            vedrict /= 5
+            verdict /= 5
 
-            if verdict < 15 and running:
+            if verdict < 0.15 and running:
                 image, frame = read_cam(camera)
 
-                prediction_trash_class = waste_model._model.predict()
+                # prediction_trash_class = waste_model._model.predict()[0]
 
-                trash_class = np.argmax(prediction_trash_class[0])
+                prediction_location_x = location_x_model._model.predict(image, verbose=0)[0]
+                # prediction_location_y = location_y_model._model.predict()[0]
 
-            # packet = construct_packet((1, 2), trash_class, stop)
+                # trash_class = np.argmax(prediction_trash_class)
+
+                x = max(prediction_location_x)
+                # y = np.argmax(prediction_location_y)
+
+                print(f"x{x} y{None}, {verdict} ")
 
     finally:
         camera.release()
         cv2.destroyAllWindows()
-        exit(0)
-        
+
 except Exception as e:
     print(f"Exception: {e}")
-    exit(1)
+    raise
