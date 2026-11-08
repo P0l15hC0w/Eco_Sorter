@@ -114,6 +114,8 @@ try:
                     break
 
             verdict /= 5
+    
+            x, y, trash_class_idx = None
 
             if verdict < 0.15 and running:
                 image, frame = read_cam(camera)
@@ -125,7 +127,7 @@ try:
 
                 trash_class_idx = np.argmax(prediction_trash_class)
 
-                x = max(prediction_location_x)
+                x = np.argmax(prediction_location_x)
                 y = np.argmax(prediction_location_y)
 
             else:

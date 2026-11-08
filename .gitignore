@@ -1,9 +1,4 @@
-*
-!src
-!src/*
-!src/models/*
-!.gitignore
-!README.md
-!ZALEZNOSCI.md
-!PLAN.md
-!Regulamin.pdf
+.pio/
+.vscode
+__pycache__
+SegregacjaOdpadow.pptx
