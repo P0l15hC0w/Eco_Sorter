@@ -28,7 +28,7 @@
     - P0l15hC0w
 - ### DOKUMENTACJA MODELI:
     - P0l15hC0w
-- ### DOKUMENTACJA PROCESU TRENOWANIA:
+- ### DOKUMENTACJA PROCESU TRENOWANIA MODELU AI:
     - vianimatio (kamera)
     - G1m0zyx (aleks)
 
