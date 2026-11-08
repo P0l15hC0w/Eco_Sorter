@@ -3,7 +3,7 @@ import numpy as np
 from teachable_machine import TeachableMachine
 from pathlib import Path
 from time import sleep
-# import serial
+import serial
 
 COM_PORT = "COM3"
 
@@ -27,8 +27,10 @@ def read_cam(camera: cv2.VideoCapture):
 def construct_packet(xy: tuple, indeks: int, stop: bool):
     return f"{xy[0]},{xy[1]},{indeks},{stop};"
 
+def send_packet(packet: str, com: serial.Serial):
+    com.write(packet.encode("UTF-8"))
+
 try: 
-    """
     tries = 1
     try: com = serial.Serial(COM_PORT, 115200, timeout=1)
     except: com = None
@@ -41,7 +43,6 @@ try:
         except:
             tries += 1
             if tries > 10: raise Exception("Port serial niedostepny")
-    """
 
     running = True
     try:
@@ -78,20 +79,20 @@ try:
         with open(HAND_LABEL_PATH, "r") as f: hand_labels = [label.strip("\n") for label in f.readlines()]
     except: raise Exception("Otwarcie modelu dloni niemozliwe")
 
-    """try:
+    try:
         waste_model = TeachableMachine(model_path=WASTE_MODEL_PATH, labels_file_path=WASTE_LABEL_PATH)
         with open(WASTE_LABEL_PATH, "r") as f: waste_labels = [label.strip("\n") for label in f.readlines()]
-    except: raise Exception("Otwarcie modelu odpadow niemozliwe")"""
+    except: raise Exception("Otwarcie modelu odpadow niemozliwe")
 
     try:
         location_x_model = TeachableMachine(model_path=LOCATION_X_MODEL_PATH, labels_file_path=LOCATION_X_LABEL_PATH)
         with open(LOCATION_X_LABEL_PATH, "r") as f: location_x_labels = [label.strip("\n") for label in f.readlines()]
     except: raise Exception("Otwarcie modelu lokalizacji osi x odpadu niemozliwe")
 
-    """try:
+    try:
         location_y_model = TeachableMachine(model_path=LOCATION_Y_MODEL_PATH, labels_file_path=LOCATION_Y_LABEL_PATH)
         with open(LOCATION_Y_LABEL_PATH, "r") as f: location_y_labels = [label.strip("\n") for label in f.readlines()]
-    except: raise Exception("Otwarcie modelu lokalizacji osi y odpadu niemozliwe")"""
+    except: raise Exception("Otwarcie modelu lokalizacji osi y odpadu niemozliwe")
 
     try:
         while running:
@@ -117,17 +118,21 @@ try:
             if verdict < 0.15 and running:
                 image, frame = read_cam(camera)
 
-                # prediction_trash_class = waste_model._model.predict()[0]
+                prediction_trash_class = waste_model._model.predict()[0]
 
                 prediction_location_x = location_x_model._model.predict(image, verbose=0)[0]
-                # prediction_location_y = location_y_model._model.predict()[0]
+                prediction_location_y = location_y_model._model.predict()[0]
 
-                # trash_class = np.argmax(prediction_trash_class)
+                trash_class_idx = np.argmax(prediction_trash_class)
 
                 x = max(prediction_location_x)
-                # y = np.argmax(prediction_location_y)
+                y = np.argmax(prediction_location_y)
 
-                print(f"x{x} y{None}, {verdict} ")
+            else:
+                stop = True
+
+            if x and y and trash_class_idx: packet = construct_packet((x, y), trash_class_idx, stop)
+            if packet: send_packet(packet)
 
     finally:
         camera.release()

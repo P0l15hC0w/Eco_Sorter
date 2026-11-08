@@ -1,0 +1,5 @@
+0 plastiki i metale
+1 papier
+2 szklo
+3 odpady bio
+4 neutral
