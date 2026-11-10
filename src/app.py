@@ -24,7 +24,7 @@ def read_cam(camera: cv2.VideoCapture):
 
     return image, frame
 
-def construct_packet(xy: tuple, indeks: int, stop: bool):
+def construct_packet(xy: tuple, indeks, stop: bool):
     return f"{xy[0]},{xy[1]},{indeks},{stop};"
 
 def send_packet(packet: str, com: serial.Serial):
@@ -120,20 +120,21 @@ try:
             if verdict < 0.15 and running:
                 image, frame = read_cam(camera)
 
-                prediction_trash_class = waste_model._model.predict()[0]
+                prediction_trash_class = waste_model._model.predict(image, verbose=0)[0]
 
-                prediction_location_x = location_x_model._model.predict(image, verbose=0)[0]
-                prediction_location_y = location_y_model._model.predict()[0]
+                if prediction_trash_class != 0: # 0 = neutralna klasa
+                    prediction_location_x = np.array(location_x_model._model.predict(image, verbose=0)[0]).tolist()
+                    prediction_location_y = np.array(location_y_model._model.predict(image, verbose=0)[0]).tolist()
 
-                trash_class_idx = np.argmax(prediction_trash_class)
+                    trash_class_idx = np.argmax(prediction_trash_class)
 
-                x = np.argmax(prediction_location_x)
-                y = np.argmax(prediction_location_y)
+                    x = [prediction_location_x.index(el) for el in prediction_location_x if el > 0.2]
+                    y = [prediction_location_y.index(el) for el in prediction_location_y if el > 0.2]
 
             else:
                 stop = True
 
-            if x and y and trash_class_idx: packet = construct_packet((x, y), trash_class_idx, stop)
+            if (x and y and trash_class_idx) or stop: packet = construct_packet((x, y), trash_class_idx, stop)
             if packet: send_packet(packet)
 
     finally:
