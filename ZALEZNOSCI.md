@@ -3,7 +3,8 @@
 - ### openCV2
 - ### TeachableMachine (oficjalny zbior zaleznosci)
 - ### pathlib
+- ### pyserial
 ## instalacja pakietow:
 ```cmd
-python -m pip install --upgrade teachable-machine numpy opencv-python pathlib
+python -m pip install --upgrade teachable-machine numpy opencv-python pathlib pyserial
 ```
